@@ -1,0 +1,111 @@
+{
+
+	"character":{
+		"-":" - ",
+		".":". ",
+		",":", ",
+		"oo":"ô ",
+		"aa":"â",
+		"ee":"ê"
+	},
+	"countries":{
+		"vietnam":" Việt Nam"
+	},
+	"cities":{
+		"\\d+|\\s(tp[.\\s]+|tp|th[aà]nh ph[oôốổồ]\\s|th[aà]nh ph[oôốổồ]|tph[oôốổồ\\s.]+)": " thành phố"
+	},
+	"wards":{
+		"\\s(sp[1-9]+|p[.\\s]+|f[1-9.\\s]+|ph[uư][oơờ]ng\\s+|ph[uư][oơờ]ngng)|ward":" phường",
+		"\\s(tx[.\\s]|th[ịi] x[aã]\\s|th[ịi] x[aã])" :" thị xã",
+		"\\s(x[.\\s]|x[aã]\\s|x[aã])" :" xã"
+		
+	},
+	"districts":{
+		"district":" quận",
+		"\\s(q[1-9]|q[.\\s]|qu[âaậ]n\\s|qu[âaậ]n)" :" quận",
+		"\\sh[.]":" huyện"
+	},
+	"streets":{
+			"\\d+":"",
+			"\\s(kp[.]|kp)":"khu phố",
+			"\\s(^d+\/{1}|đ\\s+|d\\s+|dg\\s+|đường\\s+|đường)":" đường"
+			
+	},
+	"city_name":{
+		"\\d+":"",
+		"hcmc":"Hồ Chí Minh",
+		"hcm": "Hồ Chí Minh",
+        "ho chi minh": "Hồ Chí Minh",
+        "hổ chí minh": "Hồ Chí Minh",
+        "hn": "Hà Nội",
+        "ha noi": "Hà Nội",
+        "an giang": "An Giang",
+        "ag": "An Giang",
+        "ba ria - vung tau": "Bà Rịa - Vũng Tàu",
+        "br - vt": "Bà Rịa - Vũng Tàu",
+        "bac giang": "Bác Giang",
+        "bg": "Bắc Giang",
+        "bac kan": "Bác Kạn",
+        "bk": "Bắc Kan",
+        "bac lieu": "Bạc Liêu",
+        "bl": "Bạc Liêu",
+        "bac ninh": "Bắc Nịnh",
+        "ben tre": "Bến Tre",
+        "btr": "Bến Tre",
+        "binh dinh": "Bình Định",
+        "binh duong": "Bình Dương",
+        "binh phuoc": "Bình Phước",
+        "binh thuan": "Bình Thuận",
+        "ca mau": "Cà Mau",
+        "cao bang": "Cao Bằng",
+        "dak lak": "Đắc Lắc",
+        "dak nong": "Đắc Nông",
+        "dien bien": "Điện Biên",
+        "dong nai": "Đồng Nai",
+        "dong thap": "Đồng Tháp",
+        "gia lai": "Gia Lai",
+        "ha giang": "Hà Giang",
+        "ha nam": "Ha Nam",
+        "ha tinh": "Hà Tĩnh",
+        "hai duong": "Hải Dường",
+        "hau giang": "Hậu Giang",
+        "hoa binh": "Hòa Bình",
+        "hung yen": "Hưng Yên",
+        "khanh hoa": "Khánh Hòa",
+        "kien giang": "Kiên Giang",
+        "kon tum": "Kon Tum",
+        "lai chau": "LAi Chậu",
+        "lam dong": "Lâm Đồng",
+        "lang son": "Lang Sơn",
+        "lao cai": "Lào Cai",
+        "long an": "Long An",
+        "nam dinh": "Nam Định",
+        "nghe an": "Nghệ An",
+        "ninh binh": "Ninh Bình",
+        "ninh thuan": "Ninh Thuận",
+        "phu tho": "Phú Thọ",
+        "quang binh": "Quảng Bình",
+        "quang nam": "Quảng Nam",
+        "quang ngai": "Quảng Ngãi",
+        "quang ninh": "Quảng Ninh",
+        "quang tri": "Quảng Trị",
+        "soc trang": "Sóc Trăng",
+        "son la": "Sơn La",
+        "tay ninh": "Tây Ninh",
+        "thai binh": "Thái Bình",
+        "thai nguyen": "Thái Nguyên",
+        "thanh hoa": "Thanh Hóa",
+        "thua thien hue": "Thừa Thiên Huế",
+        "tien giang": "Tiền Giang",
+        "tra vinh": "Trà Vinh",
+        "tuyen quang": "Tuyên Quang",
+        "vinh long": "Vĩnh Long",
+        "vinh phuc": "Vĩnh Phúc",
+        "yen bai": "Yên Bái",
+        "phu yen": "Phú Yên",
+        "can tho": "Cần Thơ",
+        "da nang": "Đà Nẵng",
+        "hai phong": "Hải Phòng"
+	}
+		
+}
