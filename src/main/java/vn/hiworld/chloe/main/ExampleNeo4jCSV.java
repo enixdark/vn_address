@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.io.Writer;
 import java.net.URL;
 import java.util.ArrayList;
@@ -29,9 +30,11 @@ import org.neo4j.kernel.api.properties.Property;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.GeocodingApiRequest;
+import com.google.protobuf.DescriptorProtos.SourceCodeInfo.Location;
 
 import scala.Function1;
 import scala.Tuple2;
@@ -53,6 +56,8 @@ import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SQLContext;
 import org.neo4j.graphdb.Label;
+import com.google.gson.JsonParser;
+
 
 public class ExampleNeo4jCSV {
 	public final static String dbpath = "/usr/local/neo4j/data/graph.db";
@@ -137,18 +142,24 @@ public class ExampleNeo4jCSV {
 	public static void main(String[] args) throws FileNotFoundException{
 		
 		
-		GeoCoding context = GeoCoding.createGeoCoding("AIzaSyDTGMoAL8ve-u4zCe3M8V1nEQGQCVV3YzU");
+//		GeoCoding context = GeoCoding.createGeoCoding("AIzaSyDTGMoAL8ve-u4zCe3M8V1nEQGQCVV3YzU");
+//		List<Place> places = context.getPlaceContext().getPlacesByQuery("CÔNG TY TNHH KHÁCH SẠN GRAND IMPERIAL SAIGON", GooglePlaces.DEFAULT_RESULTS);
+//		System.out.println(places.get(0).getAddress());
 		SparkConf conf = new SparkConf()
 				.setAppName("default")
 				.set("spark.master", "local[2]");
 
 		SparkContext sc = new SparkContext(conf);
 		SQLContext sqlContext = new SQLContext(sc);
-		String path = "/home/thuy/data/super_mini_city.csv";
+		String path = "/home/thuy/data/new.csv";
 		DataFrame df = sqlContext.read().format("com.databricks.spark.csv").option("header", "true").load(path);
-		List<Row> cities = df.select("3","9").javaRDD().collect();
+		List<Row> cities = df.select("3","9","99").javaRDD().collect();
 		
+		//String s = cities.get(0).getString(1);
 		
+//		gson.fromJson(reader, Location[].class);
+		
+//		
 		final GraphDatabaseService services = new GraphDatabaseFactory()
 				.newEmbeddedDatabase(ExampleNeo4jCSV.dbpath);
 		NeoRelTypes type = NeoRelTypes.BELONGS_TO;
@@ -172,16 +183,20 @@ public class ExampleNeo4jCSV {
 				String company_name = city.get(0).toString();
 
 				
-				Map<String,String> address = context.getGeoInformation(city.get(1).toString(), city.get(0).toString());
-				country_name = address.get(GeoCoding.COUNTRY) == null ? "" : address.get(GeoCoding.COUNTRY).toLowerCase();
-				cities_name = CleanWord.extractCity(address.get(GeoCoding.CITY)  == null ? (
-						address.get(GeoCoding.LOCALITY) == null ? "" : address.get(GeoCoding.LOCALITY))
-						: address.get(GeoCoding.CITY).toLowerCase());
-				district_name = CleanWord.extractDistrict((address.get(GeoCoding.DISTRICT)  == null ? (
-						address.get(GeoCoding.LOCALITY) == null ? "" : address.get(GeoCoding.LOCALITY))
-						: address.get(GeoCoding.DISTRICT).toLowerCase()));
-				ward_name = address.get(GeoCoding.WARD)  == null ? "" : address.get(GeoCoding.WARD).toLowerCase();
-				street_name = address.get(GeoCoding.STREET) == null ? "" : address.get(GeoCoding.STREET).toLowerCase();
+//				Map<String,String> address = context.getGeoInformation(city.get(1).toString(), city.get(0).toString());
+//				country_name = address.get(GeoCoding.COUNTRY) == null ? "" : address.get(GeoCoding.COUNTRY).toLowerCase();
+//				cities_name = CleanWord.extractCity(address.get(GeoCoding.CITY)  == null ? (
+//						address.get(GeoCoding.LOCALITY) == null ? "" : address.get(GeoCoding.LOCALITY))
+//						: address.get(GeoCoding.CITY).toLowerCase());
+//				district_name = CleanWord.extractDistrict((address.get(GeoCoding.DISTRICT)  == null ? "" : address.get(GeoCoding.DISTRICT).toLowerCase()));
+//				ward_name = address.get(GeoCoding.WARD)  == null ? "" : address.get(GeoCoding.WARD).toLowerCase();
+//				street_name = address.get(GeoCoding.STREET) == null ? "" : address.get(GeoCoding.STREET).toLowerCase();
+				
+				JsonReader reader = new JsonReader(new StringReader(city.getString(2)));
+				reader.setLenient(true);
+				JsonObject json = new JsonParser().parse(reader).getAsJsonObject();
+				
+				country_name = json.get("country").getAsString().toLowerCase();
 				
 				map.put("country_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
 						country_name,
@@ -190,19 +205,22 @@ public class ExampleNeo4jCSV {
 						));
 				
 				map.put("cities_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
-						cities_name,NeoLabel.CITY,NeoRelTypes.BELONGS_TO
+						CleanWord.extractCity(json.get("administrative_area_level_1").getAsString().toLowerCase()),NeoLabel.CITY,NeoRelTypes.BELONGS_TO
 						));
 				
 				
 				map.put("district_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
-						district_name,NeoLabel.DISTRICT,NeoRelTypes.BELONGS_TO
+						CleanWord.extractDistrict(json.get("administrative_area_level_2").getAsString() == "" ? (
+							json.get("locality").getAsString() == "" ? "" : json.get("locality").getAsString().toLowerCase()
+						) : json.get("administrative_area_level_2").getAsString().toLowerCase())
+						,NeoLabel.DISTRICT,NeoRelTypes.BELONGS_TO
 						));
 				map.put("ward_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
-						ward_name,NeoLabel.WARD,NeoRelTypes.BELONGS_TO
+						json.get("sublocality_level_1").getAsString().toLowerCase(),NeoLabel.WARD,NeoRelTypes.BELONGS_TO
 						));
 				
 				map.put("street_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
-						street_name,NeoLabel.STREET,NeoRelTypes.BELONGS_TO
+						json.get("route").getAsString().toLowerCase(),NeoLabel.STREET,NeoRelTypes.BELONGS_TO
 						));
 
 			
@@ -237,9 +255,12 @@ public class ExampleNeo4jCSV {
 				company_node = services.createNode(NeoLabel.COMPANY);
 				company_node.setProperty("name", company_name);
 				company_node.setProperty("address", city.get(1).toString());
-				company_node.setProperty("location", address.get("location") == null ? "" : address.get("location"));
+//				company_node.setProperty("location", address.get("location") == null ? "" : address.get("location"));
+				company_node.setProperty("lat", json.get("location") == null ? "0.0" : json.get("location").getAsJsonObject().get("lat").getAsFloat());
+				company_node.setProperty("lng", json.get("location") == null ? "0.0" : json.get("location").getAsJsonObject().get("lng").getAsFloat());
 				node_flag.createRelationshipTo(company_node, NeoRelTypes.BELONGS_TO );
-				Thread.sleep(1000);
+				//Thread.sleep(1000);
+				//throw new Exception("new");
 			}
 //			throw new Exception("");
 		    tx.success();
@@ -251,7 +272,7 @@ public class ExampleNeo4jCSV {
 		finally {
 //			services.shutdown();
 		}
-//		
+		
 		
 //		Pattern regexPattern = Pattern.compile("(tp[1-9.\\s]|thanh pho\\s|thành phố|thanh pho)", Pattern.UNICODE_CASE);
 //		System.out.println(CleanWord.extractCity("tphố hcm"));
