@@ -44,6 +44,8 @@ import scala.Tuple5;
 import scala.collection.mutable.ListBuffer;
 import se.walkercrou.places.GooglePlaces;
 import se.walkercrou.places.Place;
+import vn.hiworld.chloe.neo.relationship.NeoLabel;
+import vn.hiworld.chloe.neo.relationship.NeoRel;
 import vn.hiworld.chloe.util.CleanWord;
 import vn.hiworld.chloe.util.GeoCoding;
 
@@ -63,24 +65,7 @@ public class ExampleNeo4jCSV {
 	public final static String dbpath = "/usr/local/neo4j/data/graph.db";
 	
 	
-	public static enum NeoLabel implements Label {
-		COMPANY,
-		DISTRICT,
-		WARD,
-		STREET,
-		CITY,
-		COUNTRIES
-	}
 
-	public static enum NeoRelTypes implements RelationshipType{
-		NULL,
-		BELONGS_TO
-//		DIRECT_TO_DISTRICT,
-//		DIRECT_TO_STREET,
-//		DIRECT_TO_COMPANY,
-//		DIRECT_TO_WARD
-		
-	}
 	private static void registerShutdownHook( final GraphDatabaseService graphDb )
 	{
 	    // Registers a shutdown hook for the Neo4j instance so that it
@@ -102,7 +87,7 @@ public class ExampleNeo4jCSV {
 			String key,
 			NeoLabel label
 	){
-		return process(services,map,key,"1",null,label,NeoRelTypes.NULL);
+		return process(services,map,key,"1",null,label,NeoRel.NULL);
 	}
 	
 	
@@ -112,7 +97,7 @@ public class ExampleNeo4jCSV {
 			String rel_name,
 			Node rel_node,
 			NeoLabel label,
-			NeoRelTypes type
+			NeoRel type
 	)
 	{
 		Node node;
@@ -162,7 +147,7 @@ public class ExampleNeo4jCSV {
 //		
 		final GraphDatabaseService services = new GraphDatabaseFactory()
 				.newEmbeddedDatabase(ExampleNeo4jCSV.dbpath);
-		NeoRelTypes type = NeoRelTypes.BELONGS_TO;
+		NeoRel type = NeoRel.BELONGS_TO;
 		registerShutdownHook(services);		
 		
 		
@@ -177,8 +162,8 @@ public class ExampleNeo4jCSV {
 				
 				Node country_node = null ,company_node;
 				String country_name, cities_name, district_name, ward_name, street_name;
-				Map<String,Tuple3<String,NeoLabel,NeoRelTypes>> map = 
-						new HashMap<String,Tuple3<String,NeoLabel,NeoRelTypes>>();
+				Map<String,Tuple3<String,NeoLabel,NeoRel>> map = 
+						new HashMap<String,Tuple3<String,NeoLabel,NeoRel>>();
 				
 				String company_name = city.get(0).toString();
 
@@ -198,29 +183,29 @@ public class ExampleNeo4jCSV {
 				
 				country_name = json.get("country").getAsString().toLowerCase();
 				
-				map.put("country_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
+				map.put("country_name",new Tuple3<String,NeoLabel,NeoRel>(
 						country_name,
 						NeoLabel.COUNTRIES,
-						NeoRelTypes.NULL
+						NeoRel.NULL
 						));
 				
-				map.put("cities_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
-						CleanWord.extractCity(json.get("administrative_area_level_1").getAsString().toLowerCase()),NeoLabel.CITY,NeoRelTypes.BELONGS_TO
+				map.put("cities_name",new Tuple3<String,NeoLabel,NeoRel>(
+						CleanWord.extractCity(json.get("administrative_area_level_1").getAsString().toLowerCase()),NeoLabel.CITY,NeoRel.BELONGS_TO
 						));
 				
 				
-				map.put("district_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
+				map.put("district_name",new Tuple3<String,NeoLabel,NeoRel>(
 						CleanWord.extractDistrict(json.get("administrative_area_level_2").getAsString() == "" ? (
 							json.get("locality").getAsString() == "" ? "" : json.get("locality").getAsString().toLowerCase()
 						) : json.get("administrative_area_level_2").getAsString().toLowerCase())
-						,NeoLabel.DISTRICT,NeoRelTypes.BELONGS_TO
+						,NeoLabel.DISTRICT,NeoRel.BELONGS_TO
 						));
-				map.put("ward_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
-						json.get("sublocality_level_1").getAsString().toLowerCase(),NeoLabel.WARD,NeoRelTypes.BELONGS_TO
+				map.put("ward_name",new Tuple3<String,NeoLabel,NeoRel>(
+						json.get("sublocality_level_1").getAsString().toLowerCase(),NeoLabel.WARD,NeoRel.BELONGS_TO
 						));
 				
-				map.put("street_name",new Tuple3<String,NeoLabel,NeoRelTypes>(
-						json.get("route").getAsString().toLowerCase(),NeoLabel.STREET,NeoRelTypes.BELONGS_TO
+				map.put("street_name",new Tuple3<String,NeoLabel,NeoRel>(
+						json.get("route").getAsString().toLowerCase(),NeoLabel.STREET,NeoRel.BELONGS_TO
 						));
 
 			
@@ -231,7 +216,7 @@ public class ExampleNeo4jCSV {
 				Node node_flag = country_node;
 				String name_flag = country_name;
 				for(String name : Arrays.asList("cities_name", "district_name", "ward_name", "street_name")){
-					Tuple3<String,NeoLabel,NeoRelTypes> item = map.get(name);
+					Tuple3<String,NeoLabel,NeoRel> item = map.get(name);
 					if(!item._1().isEmpty()){
 						Tuple2<HashMap<String, Node>,Node> node = 
 						process(
@@ -258,7 +243,7 @@ public class ExampleNeo4jCSV {
 //				company_node.setProperty("location", address.get("location") == null ? "" : address.get("location"));
 				company_node.setProperty("lat", json.get("location") == null ? "0.0" : json.get("location").getAsJsonObject().get("lat").getAsFloat());
 				company_node.setProperty("lng", json.get("location") == null ? "0.0" : json.get("location").getAsJsonObject().get("lng").getAsFloat());
-				node_flag.createRelationshipTo(company_node, NeoRelTypes.BELONGS_TO );
+				node_flag.createRelationshipTo(company_node, NeoRel.BELONGS_TO );
 				//Thread.sleep(1000);
 				//throw new Exception("new");
 			}
