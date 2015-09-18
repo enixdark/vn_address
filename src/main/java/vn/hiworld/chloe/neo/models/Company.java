@@ -5,14 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.neo4j.ogm.annotation.GraphId;
-import org.neo4j.ogm.annotation.NodeEntity;
-import org.neo4j.ogm.annotation.Relationship;
+import vn.hiworld.chloe.neo.annotation.NodeEntity;
 
 
 @NodeEntity(label="COMPANY")
 public class Company extends Entity{
-	@GraphId
 	private float lat;
 	private float lng;
 	

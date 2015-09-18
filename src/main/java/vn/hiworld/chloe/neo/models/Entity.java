@@ -1,19 +1,15 @@
 package vn.hiworld.chloe.neo.models;
 
-import org.neo4j.ogm.annotation.GraphId;
+import vn.hiworld.chloe.neo.annotation.GraphId;
+import vn.hiworld.chloe.neo.annotation.NodeEntity;
+import vn.hiworld.chloe.neo.annotation.Relationship;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+@NodeEntity(label="")
 public abstract class Entity {
-
 	@GraphId
-    //@JsonProperty("id")
     protected Long id;
-    
-    
-    
-    @JsonProperty("name")
     protected String name;
+    
 
     public Long getId() {
         return id;
@@ -30,8 +26,12 @@ public abstract class Entity {
 	public void setName(String name) {
 		this.name = name;
 	}
-
-
+	
+	public Entity(String ... params){
+		
+		
+	}
+	
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -48,6 +48,19 @@ public abstract class Entity {
     public int hashCode() {
         return (id == null) ? -1 : id.hashCode();
     }
+    
+    public String getLabel(){
+    	return this.getClass().getAnnotation(NodeEntity.class).label();
+    }
+    
+    public String getParentLabel(){
+    	return this.getClass().getAnnotation(NodeEntity.class).parent();
+    }
+    
+    public String getChildLabel(){
+    	return this.getClass().getAnnotation(NodeEntity.class).child();
+    }
+    
 
 	
 }

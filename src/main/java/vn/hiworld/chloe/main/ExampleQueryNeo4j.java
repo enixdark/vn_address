@@ -28,8 +28,6 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.kernel.api.properties.Property;
-import org.neo4j.ogm.session.Session;
-import org.neo4j.ogm.session.SessionFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -48,16 +46,23 @@ import scala.Tuple5;
 import scala.collection.mutable.ListBuffer;
 import se.walkercrou.places.GooglePlaces;
 import se.walkercrou.places.Place;
+import vn.hiworld.chloe.neo.models.City;
+import vn.hiworld.chloe.neo.models.Country;
+import vn.hiworld.chloe.neo.models.District;
 import vn.hiworld.chloe.neo.relationship.NeoRel;
-import vn.hiworld.chloe.service.CountryService;
-import vn.hiworld.chloe.service.CountryServiceImpl;
+import vn.hiworld.chloe.neo.session.CholeServiceFactory;
+import vn.hiworld.chloe.service.CityService;
 import vn.hiworld.chloe.util.CleanWord;
 import vn.hiworld.chloe.util.GeoCoding;
 
 import java.util.regex.Pattern;
+
+import javax.print.DocFlavor.STRING;
+
 import java.util.regex.Matcher;
 import java.util.ArrayList;
 import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.Result;
 import org.apache.spark.SparkContext;
 import org.apache.spark.sql.DataFrame;
 import org.apache.spark.sql.Row;
@@ -78,26 +83,17 @@ public class ExampleQueryNeo4j {
 	    // Registers a shutdown hook for the Neo4j instance so that it
 	    // shuts down nicely when the VM exits (even if you "Ctrl-C" the
 	    // running application).
-		SessionFactory sessionFactory = new SessionFactory("com.mycompany.myapp.domain");
-		Session session = sessionFactory.openSession("http://@localhost:7474","neo4j","123456");
-//		session.beginTransaction();
-		session.query("match (n) return n LIMIT 1", new HashMap<String,Object>());
 		
-//		session.query("match (n) return count(n)",new HashMap());
-//		URI uri = new URI("http://neo4j:123456@localhost:7474");
-//		 String auth = uri.getUserInfo();
-//		System.out.println(uri.getScheme() + "://" + uri.toString().substring(uri.toString().indexOf(auth) + auth.length()+1));
-//		CountryServiceImpl e = new CountryServiceImpl();
-//		e.find(1L);
 		
-//	    Runtime.getRuntime().addShutdownHook( new Thread()
-//	    {
-//	        @Override
-//	        public void run()
-//	        {
-//	            graphDb.shutdown();
-//	        }
-//	    } );
+		
+	    Runtime.getRuntime().addShutdownHook( new Thread()
+	    {
+	        @Override
+	        public void run()
+	        {
+	            graphDb.shutdown();
+	        }
+	    } );
 	}
 	
 	
@@ -107,40 +103,45 @@ public class ExampleQueryNeo4j {
 	
 	
 	
-	
+	public static void h(String ... params){
+		System.out.print(params[0]);
+	}
 	
 	/*
 	 * Example for using neo4j driver to make node from file csv that data is cleaned without geocoding
 	 */
 	public static void main(String[] args) throws FileNotFoundException, URISyntaxException{
 		
-	
-		final GraphDatabaseService services = new GraphDatabaseFactory()
-				.newEmbeddedDatabase(ExampleQueryNeo4j.dbpath);
-		NeoRel type = NeoRel.BELONGS_TO;
-		registerShutdownHook(services);		
+		h("1","2","3");
+		final GraphDatabaseService services = 
+				CholeServiceFactory.createService("/usr/local/neo4j/data/graph.db").getGraphdb();
+//			
 		
-		
-		
-		try ( Transaction tx = services.beginTx() )
+		try ( Transaction tx = services.beginTx())
 		{			
-			
-			
-			
+						
 //			throw new Exception("");
+			Map<String, String> dict = new HashMap<String,String>();
+			dict.put("name", "hồ chí minh");
+			CityService c = new CityService();
+			
+			c.pprintNode(c.findSiblings("CITY", dict));
+//			c.pprintNode(c.query(
+//					"match (n:CITY)-[*1..]-(c:COMPANY)"
+//					+ "where n.name = \"hồ chí minh\" return c"
+//			));
+
+			
 		    tx.success();
 		}
-		catch (Exception e) {
+		catch (Exception e){
 			// TODO: handle exception
 			e.printStackTrace();
 		}
 		finally {
 //			services.shutdown();
 		}
-		
-		
-
-		
+	
 	}
 }
 
